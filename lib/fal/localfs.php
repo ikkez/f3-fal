@@ -12,7 +12,7 @@
  *  Christian Knuth <ikkez0n3@gmail.com>
  *  https://github.com/ikkez/F3-Sugar/
  *
- *  @version 0.9.5
+ *  @version 0.9.6
  *  @date 03.09.2014
  **/
 
@@ -152,6 +152,16 @@ class LocalFS implements FileSystem
 					$log['skipped'][] = substr($node_path, strlen($dst));
 		}
 		return $log;
+	}
+
+	public function dirSize($dir) {
+		$size = 0;
+		foreach (new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator($this->path.$dir)) as $file)
+				if ($file->isFile())
+					$size+=$file->getSize();
+
+		return $size;
 	}
 }
 
