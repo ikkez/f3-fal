@@ -1,6 +1,6 @@
 
 
-![FAL LOGO](https://dl.dropboxusercontent.com/u/3077539/_linked/F3FAL.png)
+![FAL LOGO](https://ikkez.de/linked/F3FAL.png)
 #### A File Abstraction Layer for the Fat-Free Framework
 
 This
@@ -8,7 +8,7 @@ F3-Plugin aims to give you an easy mapper for files, that allows you to attach s
 
 This way you don't have to worry about where and how the files will be stored. You can easily load, save and move files between the given filesystems. Currently available adapters are: **Local Filesystem**, **FTP** and **DropBox** (expect more to come).
 
-`This Plugin requires F3 version 3.0.5 or higher.`
+`This Plugin requires F3 version 3.3.0 or higher.`
 
 
 ### Installation
