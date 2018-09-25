@@ -181,14 +181,15 @@ class FAL extends Magic
 	 */
 	public function &get($key)
 	{
-		return ($this->exists($key)) ? $this->meta[$key] : false;
+		$out = ($this->exists($key)) ? $this->meta[$key] : false;
+		return $out;
 	}
 
 	/**
 	 * set meta data field
 	 * @param $key
 	 * @param $val
-	 * @return mixed|void
+	 * @return mixed
 	 */
 	public function set($key, $val)
 	{
