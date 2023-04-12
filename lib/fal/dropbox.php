@@ -437,6 +437,14 @@ class Dropbox implements FileSystem {
 	 */
 	public function removeDir($dir, $type='sandbox')
 	{
-		$this->delete($dir,$type);
+		return $this->delete($dir,$type);
+	}
+
+	/**
+	 * return filesystem engine key
+	 * @return string
+	 */
+	public function engine() {
+		return 'dropbox';
 	}
 }

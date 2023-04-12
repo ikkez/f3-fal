@@ -205,6 +205,14 @@ class FTP implements FileSystem
 			return false;
 	}
 
+	/**
+	 * return filesystem engine key
+	 * @return string
+	 */
+	public function engine() {
+		return 'ftp';
+	}
+
 	public function __destruct() {
 		$this->disconnect();
 	}

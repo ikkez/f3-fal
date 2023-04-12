@@ -18,8 +18,7 @@
  *  Christian Knuth <ikkez0n3@gmail.com>
  *  https://github.com/ikkez/F3-Sugar/
  *
- *  @version 0.7.2
- *  @date 08.02.2013
+ *  @version 0.7.3
  **/
 
 class FAL extends Magic
@@ -42,7 +41,7 @@ class FAL extends Magic
 								\FAL\MetaStorageInterface $metaAdapter = NULL)
 	{
 		$this->fs = $filesystemAdapter;
-		if(is_null($metaAdapter))
+		if (is_null($metaAdapter))
 			$metaAdapter = new \FAL\MetaFileStorage($filesystemAdapter);
 		$this->metaHandle = $metaAdapter;
 		$this->meta = array();
@@ -94,10 +93,27 @@ class FAL extends Magic
 		return true;
 	}
 
+	function meta() {
+		return $this->metaHandle;
+	}
+
+	/**
+	 * return general file idenfitier
+	 * @return string
+	 */
+	function getUUID() {
+		if (method_exists($this->metaHandle,'getUUID'))
+			$id = $this->metaHandle->getUUID();
+		else
+			$id = $this->getCacheHash($this->file);
+		return $id;
+	}
+
 	/**
 	 * loads a file and it's meta data
 	 * @param string $file
 	 * @param int $ttl
+	 * @return bool
 	 */
 	public function load($file,$ttl = 0)
 	{
@@ -107,21 +123,26 @@ class FAL extends Magic
 		$this->changed = false;
 		$this->ttl = $ttl;
 		$cacheHash = $this->getCacheHash($file);
+		$exists = false;
 		if ($this->f3->get('CACHE') && $ttl && ($cached = $cache->exists(
 			$cacheHash,$content)) && $cached[0] + $ttl > microtime(TRUE)
 		) {
 			// load from cache
 			$this->content = $content;
 			$this->meta = $this->metaHandle->load($file,$ttl);
+			$exists = true;
 		} elseif ($this->fs->exists($file)) {
 			// load from FS
+			$exists = true;
 			$this->meta = $this->metaHandle->load($file,$ttl);
 			// if caching is on, save content to cache backend, otherwise it gets lazy loaded
-			if ($this->f3->get('CACHE') && $ttl) {
+			if ($this->fs->engine() != 'local'
+				&& $this->f3->get('CACHE') && $ttl) {
 				$this->content = $this->fs->read($file);
 				$cache->set($cacheHash, $this->content, $ttl);
 			}
 		}
+		return $exists;
 	}
 
 	/**
@@ -129,7 +150,7 @@ class FAL extends Magic
 	 * @param $file
 	 * @return string
 	 */
-	protected function getCacheHash ($file)
+	protected function getCacheHash($file)
 	{
 		if(is_null($this->cacheHash)) {
 			$fs_class = explode('\\', get_class($this->fs));
@@ -181,7 +202,7 @@ class FAL extends Magic
 	 */
 	public function &get($key)
 	{
-		$out = ($this->exists($key)) ? $this->meta[$key] : false;
+		$out = ($this->exists($key)) ? $this->meta[$key] : null;
 		return $out;
 	}
 
@@ -221,13 +242,40 @@ class FAL extends Magic
 	 */
 	public function reset()
 	{
-		$this->meta = false;
+		$this->meta = [];
 		$this->file = false;
 		$this->content = false;
 		$this->changed = false;
 		$this->ttl = 0;
 		$this->cacheHash = null;
 	}
+
+	/**
+	 * @param $key
+	 * @param $fields
+	 */
+	public function copyfrom($key, $fields = null) {
+		$srcfields = is_array($key) ? $key : $this->f3->get($key);
+		if ($fields) {
+			if (is_callable($fields))
+				$srcfields = $fields($srcfields);
+			else {
+				if (is_string($fields))
+					$fields = $this->f3->split($fields);
+				$srcfields = array_intersect_key($srcfields, array_flip($fields));
+			}
+		}
+		$this->meta = $srcfields;
+	}
+
+	public function copyto($key) {
+		$this->f3->set($key,$this->meta);
+	}
+
+	public function cast() {
+		return $this->meta;
+	}
+
 
 	/**
 	 * lazy load file contents

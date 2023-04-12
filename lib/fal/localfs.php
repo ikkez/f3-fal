@@ -12,7 +12,7 @@
  *  Christian Knuth <ikkez0n3@gmail.com>
  *  https://github.com/ikkez/F3-Sugar/
  *
- *  @version 0.9.6
+ *  @version 0.9.7
  *  @date 03.09.2014
  **/
 
@@ -163,6 +163,14 @@ class LocalFS implements FileSystem
 
 		return $size;
 	}
+
+	/**
+	 * return filesystem engine key
+	 * @return string
+	 */
+	public function engine() {
+		return 'local';
+	}
 }
 
 
@@ -186,7 +194,8 @@ class FileFilter extends \FilterIterator {
 		else    parent::__construct($dir);
 	}
 
-	public function accept() {
+	public function accept(): bool
+    {
 		if ($this->isDot()) return false;
 		if ($this->pattern) return preg_match($this->pattern, $this->getFilename());
 		return true;

@@ -82,4 +82,10 @@ interface FileSystem {
 	* @return mixed
 	*/
 	public function removeDir($dir);
+
+	/**
+	 * return filesystem engine key
+	 * @return string
+	 */
+	public function engine();
 }
